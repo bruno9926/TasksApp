@@ -1,0 +1,86 @@
+$checked-color: #2D9348;
+
+.taskCard {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: 17rem;
+    box-sizing: border-box;
+    padding: 0rem 1rem 1rem 1rem;
+    border: 3px solid #4E4E4E;
+    border-radius: 18px;
+    background-color: #262626;
+    border-color: #4E4E4E;
+
+    transition: transform 0.4s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+      cursor :pointer;
+      box-shadow: 0px 5px 8px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    h3 {
+      color: #DEDEDE;
+      margin: 2rem 0 .5rem 0;
+    }
+
+    .description {
+      color: #7e7e7e;
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .checkboxContainer {
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      gap: 0.5rem;
+
+      .checkbox {
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+
+        &:hover {
+          cursor: pointer;
+          border: 2px solid white;
+        }
+
+        .indicator {
+          height: 1.2rem;
+        }
+      }
+
+      .checkboxLabel {
+      }
+    }
+  }
+
+  .completed {
+    background-color: #47CA50;
+    border: 3px #179B3A solid;
+
+    h3 {
+      color: #1B1B1B;
+    }
+
+    .description {
+      color: #313131;
+      font-weight: 500;
+    }
+
+    .checkbox {
+      background-color: $checked-color;
+      border-color: #179B3A;
+    }
+
+    .checkboxLabel {
+      color: #1B1B1B;
+      font-weight: 500;
+    }
+  }

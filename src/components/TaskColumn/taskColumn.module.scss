@@ -1,0 +1,13 @@
+.tasksColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: fit-content;
+    min-width: 17rem;
+    gap: 1rem;
+    margin: 1rem;
+    box-sizing: border-box;
+
+    //border: 1px solid #4E4E4E;
+    min-height: 50vh;
+}
