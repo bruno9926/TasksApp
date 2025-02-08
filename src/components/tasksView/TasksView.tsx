@@ -1,11 +1,15 @@
 import TaskColumn from '../TaskColumn/TaskColumn';
-import React, { useState } from 'react';
+import { useState } from 'react';
 // types
 import type TaskType from '../../types/Tasks'
 
 // styles
 import classes from './tasksView.module.scss';
 import TaskStatuses from '../../types/TaskStatuses';
+// icons
+import { FaPlus } from "react-icons/fa6";
+
+import { v4 as uuid } from 'uuid';
 
 const TasksView = () => {
   const tasks: TaskType[] = [
@@ -50,20 +54,46 @@ const TasksView = () => {
     })
   }
 
+  const addNewTask = () => {
+    let newId = uuid();
+
+    const sampleTask: TaskType = {
+      id: newId,
+      title: "Sample Task",
+      description: "What are you plannig?",
+      completed: false
+    }
+    setUncompletedTasks([...uncompletedTasks, sampleTask])
+  }
+
   return (
-    <div className={classes.tasksView}>
-      <TaskColumn
-        header={{title: "pending"}}
-        status={TaskStatuses.PENDING}
-        tasks={uncompletedTasks}
-        onToggle={handleToggleTask}
-      />
-      <TaskColumn
-        header={{title: "completed"}}
-        status={TaskStatuses.COMPLETED}
-        tasks={completedTasks}
-        onToggle={handleToggleTask}
-      />
+    <section className={classes.tasksView}>
+      <Header addNewTask={addNewTask}/>
+      <div className={classes.tasksContainer}>
+        <TaskColumn
+          header={{title: "pending"}}
+          status={TaskStatuses.PENDING}
+          tasks={uncompletedTasks}
+          onToggle={handleToggleTask}
+        />
+        <TaskColumn
+          header={{title: "completed"}}
+          status={TaskStatuses.COMPLETED}
+          tasks={completedTasks}
+          onToggle={handleToggleTask}
+        />
+      </div>
+    </section>
+  )
+}
+
+const Header = ({ addNewTask } : { addNewTask: () => void }) => {
+  return (
+    <div className={classes.header}>
+      <h1>Your Tasks</h1>
+      <button className={classes.addTask} onClick={() => addNewTask()}>
+        <FaPlus />
+      </button>
     </div>
   )
 }

@@ -1,4 +1,15 @@
 $checked-color: #2D9348;
+$hover-complete-color: #d2fdd1;
+$hover-color: #9290fa;
+
+
+@mixin editable($hover-color) {
+  &:hover {
+    cursor: pointer;
+    cursor: pointer;
+    color: $hover-color;
+  }
+}
 
 .taskCard {
     display: flex;
@@ -16,19 +27,21 @@ $checked-color: #2D9348;
 
     &:hover {
       transform: scale(1.05);
-      cursor :pointer;
+      cursor :grab;
       box-shadow: 0px 5px 8px 0 rgba(0, 0, 0, 0.5);
     }
 
     h3 {
       color: #DEDEDE;
       margin: 2rem 0 .5rem 0;
+      @include editable($hover-color);
     }
 
     .description {
       color: #7e7e7e;
       font-weight: 500;
       margin-bottom: 2rem;
+      @include editable($hover-color);
     }
 
     .checkboxContainer {
@@ -36,6 +49,7 @@ $checked-color: #2D9348;
       align-items: center;
       width: fit-content;
       gap: 0.5rem;
+      transition: border-color 0.25s;
 
       .checkbox {
         width: 1.5rem;
@@ -67,11 +81,15 @@ $checked-color: #2D9348;
 
     h3 {
       color: #1B1B1B;
+      @include editable($hover-complete-color);
+
     }
 
     .description {
       color: #313131;
       font-weight: 500;
+      @include editable($hover-complete-color);
+
     }
 
     .checkbox {
