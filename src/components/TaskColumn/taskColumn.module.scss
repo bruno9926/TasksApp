@@ -1,3 +1,7 @@
+// statuses has predifined colors
+$pending-color: #FF9500;
+$completed-color: #47CA50;
+
 .tasksColumn {
     display: flex;
     flex-direction: column;
@@ -10,4 +14,22 @@
 
     //border: 1px solid #4E4E4E;
     min-height: 50vh;
+
+    .headerChip {
+        color: white;
+        border: 1px solid;
+        padding: 0.3em .8em;
+        border-radius: 1rem;
+        font-size: small;
+
+        &.pending {
+            color: $pending-color;
+            border-color: $pending-color;
+        }
+
+        &.completed {
+            color: $completed-color;
+            border-color: $completed-color;
+        }
+    }
 }

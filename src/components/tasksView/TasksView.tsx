@@ -5,6 +5,7 @@ import type TaskType from '../../types/Tasks'
 
 // styles
 import classes from './tasksView.module.scss';
+import TaskStatuses from '../../types/TaskStatuses';
 
 const TasksView = () => {
   const tasks: TaskType[] = [
@@ -21,8 +22,6 @@ const TasksView = () => {
       completed: true
     }
   ];
-
-  const [tasksState, setTasks] = useState(tasks);
 
   const [completedTasks, setCompletedTasks] = useState<TaskType[]>(tasks.filter(task => task.completed));
   const [uncompletedTasks, setUncompletedTasks] = useState<TaskType[]>(tasks.filter(task => !task.completed));
@@ -53,8 +52,18 @@ const TasksView = () => {
 
   return (
     <div className={classes.tasksView}>
-      <TaskColumn header={{title: "pending"}} tasks={uncompletedTasks} onToggle={handleToggleTask}/>
-      <TaskColumn header={{title: "completed"}} tasks={completedTasks} onToggle={handleToggleTask}/>
+      <TaskColumn
+        header={{title: "pending"}}
+        status={TaskStatuses.PENDING}
+        tasks={uncompletedTasks}
+        onToggle={handleToggleTask}
+      />
+      <TaskColumn
+        header={{title: "completed"}}
+        status={TaskStatuses.COMPLETED}
+        tasks={completedTasks}
+        onToggle={handleToggleTask}
+      />
     </div>
   )
 }
