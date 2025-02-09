@@ -2,6 +2,7 @@
 import type TaskType from '../../types/Tasks';
 // components
 import TaskColumn from '../TaskColumn/TaskColumn';
+import { DragDropContext } from "@hello-pangea/dnd";
 // styles
 import classes from './tasksView.module.scss';
 import TaskStatuses from '../../types/TaskStatuses';
@@ -10,22 +11,11 @@ import { FaPlus } from "react-icons/fa6";
 // hooks
 import useTasks from '../../hooks/useTasks';
 
+import initialTasks from './initialTasks.json';
+
 
 const TasksView = () => {
-  const tasks: TaskType[] = [
-    {
-      id: "1",
-      title: "Fist Task",
-      description: "que pasa si pongo un texto muy muy muy muy largo. El largo de la card no deberia verse afectado pero si su alto",
-      completed: false
-    },
-    {
-      id: "2",
-      title: "Second Task",
-      description: "getting used to it",
-      completed: true
-    }
-  ];
+  const tasks: TaskType[] = initialTasks;
 
   const {
     completedTasks,
@@ -33,30 +23,37 @@ const TasksView = () => {
     handleToggleTask,
     addNewTask,
     deleteTask,
-    updateTask
+    updateTask,
+    handleDragEnd,
+    completedTaskColumnId,
+    uncompletedTaskColumnId
   } = useTasks(tasks);
 
   return (
     <section className={classes.tasksView}>
       <Header addNewTask={addNewTask}/>
-      <div className={classes.tasksContainer}>
-        <TaskColumn
-          header={{title: "pending"}}
-          status={TaskStatuses.PENDING}
-          tasks={uncompletedTasks}
-          onToggle={handleToggleTask}
-          onDelete={deleteTask}
-          onUpdate={updateTask}
-        />
-        <TaskColumn
-          header={{title: "completed"}}
-          status={TaskStatuses.COMPLETED}
-          tasks={completedTasks}
-          onToggle={handleToggleTask}
-          onDelete={deleteTask}
-          onUpdate={updateTask}
-        />
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className={classes.tasksContainer}>
+          <TaskColumn
+            id={uncompletedTaskColumnId}
+            header={{title: "pending"}}
+            status={TaskStatuses.PENDING}
+            tasks={uncompletedTasks}
+            onToggle={handleToggleTask}
+            onDelete={deleteTask}
+            onUpdate={updateTask}
+          />
+          <TaskColumn
+            id={completedTaskColumnId}
+            header={{title: "completed"}}
+            status={TaskStatuses.COMPLETED}
+            tasks={completedTasks}
+            onToggle={handleToggleTask}
+            onDelete={deleteTask}
+            onUpdate={updateTask}
+          />
+        </div>
+      </DragDropContext>
     </section>
   )
 }

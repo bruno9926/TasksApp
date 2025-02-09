@@ -1,12 +1,15 @@
+import { v4 as uuid } from 'uuid';
+// types
 import type TaskType from '../../types/Tasks';
+import TaskStatuses from '../../types/TaskStatuses';
 // components
 import Task from '../task/task';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 // styles
 import classes from './taskColumn.module.scss';
 
-import TaskStatuses from '../../types/TaskStatuses';
-
 type TaskColumnProps = {
+  id: string,
   header: {title: string},
   status: TaskStatuses,
   tasks: TaskType[],
@@ -16,22 +19,33 @@ type TaskColumnProps = {
 }
 
 const TaskColumn = ({
+  id,
   header, status, tasks,
   onToggle, onDelete, onUpdate
 }: TaskColumnProps) => {
+
   return (
-    <div className={classes.tasksColumn}>
-        <HeaderChip title={`${header.title} (${tasks.length})`} status={status} />
-        {tasks.map(task => (
-            <Task
-              key={task.id}
-              task={task}
-              onToggle={onToggle(task.id)}
-              onDelete={onDelete(task.id)}
-              onUpdate={onUpdate(task.id)}
-            />
-        ))}
-    </div>
+    <Droppable droppableId={id}>
+      {(provided) => (
+        <div className={classes.tasksColumn} ref={provided.innerRef} {...provided.droppableProps}>
+          <HeaderChip title={`${header.title} (${tasks.length})`} status={status} />
+          {tasks.map((task, index) => (
+            <Draggable key={task.id} draggableId={task.id} index={index}>
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                  <Task
+                  task={task}
+                  onToggle={onToggle(task.id)}
+                  onDelete={onDelete(task.id)}
+                  onUpdate={onUpdate(task.id)}
+                  />
+                </div>
+              )}
+            </Draggable>
+          ))}
+      </div> 
+    )}
+    </Droppable>
   )
 }
 

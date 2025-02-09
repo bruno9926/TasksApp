@@ -1,0 +1,14 @@
+[
+    {
+      "id": "1",
+      "title": "Fist Task",
+      "description": "que pasa si pongo un texto muy muy muy muy largo. El largo de la card no deberia verse afectado pero si su alto",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "title": "Second Task",
+      "description": "getting used to it",
+      "completed": true
+    }
+  ]
