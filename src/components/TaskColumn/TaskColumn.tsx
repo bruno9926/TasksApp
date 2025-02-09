@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 // types
 import type TaskType from '../../types/Tasks';
 import TaskStatuses from '../../types/TaskStatuses';
