@@ -4,7 +4,10 @@ import { DropResult  } from '@hello-pangea/dnd';
 // types
 import type TaskType from '../types/Tasks';
 
-const useTasks = (initialTasks: TaskType[]) => {
+const useTasks = (
+    initialTasks: TaskType[],
+    toggleCallback: (task: TaskType) => void = () => {}
+) => {
     const [completedTasks, setCompletedTasks] = useState<TaskType[]>(initialTasks.filter(task => task.completed));
     const [uncompletedTasks, setUncompletedTasks] = useState<TaskType[]>(initialTasks.filter(task => !task.completed));
 
@@ -13,10 +16,12 @@ const useTasks = (initialTasks: TaskType[]) => {
             const task = uncompletedTasks.find(task => task.id === id);
             // if task is uncompleted, we send it to the completed tasks
             if (task) {
-            return [...prevCompleted, {...task, completed: true}];
+                let updatedTask = {...task, completed: true};
+                toggleCallback(updatedTask);
+                return [...prevCompleted, updatedTask];
             } else {
             // else we remove it from the completed tasks
-            return prevCompleted.filter(task => task.id !== id);
+                return prevCompleted.filter(task => task.id !== id);
             }
         })
 
@@ -24,7 +29,9 @@ const useTasks = (initialTasks: TaskType[]) => {
             const task = completedTasks.find(task => task.id === id);
             // if task is completed, we send it to the uncompleted tasks
             if (task) {
-            return [...prevUncompleted, {...task, completed: false}];
+                let updatedTask: TaskType = {...task, completed: false};
+                toggleCallback(updatedTask);
+                return [...prevUncompleted, updatedTask];
             } else {
             // else we remove it from the uncompleted tasks
             return prevUncompleted.filter(task => task.id !== id);
@@ -88,10 +95,16 @@ const useTasks = (initialTasks: TaskType[]) => {
         const [movedTask] = updatedTasks.splice(sourceIndex, 1);
         
         if (result.destination.droppableId === completedTaskColumnId) {
-            movedTask.completed = true;
+            if (!movedTask.completed) {
+                movedTask.completed = true;
+                toggleCallback(movedTask);
+            }
         }
         if (result.destination.droppableId === uncompletedTaskColumnId) {
-            movedTask.completed = false;
+            if (movedTask.completed) {
+                movedTask.completed = false;
+                toggleCallback(movedTask);
+            }
         }
 
         updatedTasks.splice(destinationIndex, 0, movedTask);

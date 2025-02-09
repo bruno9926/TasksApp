@@ -1,16 +1,19 @@
 .tasksView {
+    //background-color: #4d3abf;
+    height: 100dvh;
+
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding: 1rem 0 0 3rem;
+    padding: .7rem 0 0 1rem;
 
     .header {
         display: flex;
         gap: 1rem;
         align-items: end;
         width: fit-content;
-        margin: 2rem 0;
-        margin-bottom: 4.5rem;
+        margin: 2rem .5rem;
+        margin-bottom: 2.5rem;
 
         button.addTask {
             display: flex;
@@ -44,6 +47,14 @@
     }
 
     .tasksContainer {
+        border-radius: 15px;
+        width: 100%;
+        height: -webkit-fill-available;
+        padding: 1rem;
+        border: 1px dashed #2e2e2e;
+        border-width: 4px;
+        overflow: auto;
+
         display: flex;
         flex-direction: row;
         gap: 2rem;

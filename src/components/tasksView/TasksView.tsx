@@ -1,6 +1,7 @@
 // types
 import type TaskType from '../../types/Tasks';
 // components
+import Confetti from 'react-confetti-boom';
 import TaskColumn from '../TaskColumn/TaskColumn';
 import { DragDropContext } from "@hello-pangea/dnd";
 // styles
@@ -13,9 +14,33 @@ import useTasks from '../../hooks/useTasks';
 
 import initialTasks from './initialTasks.json';
 
+import { useState } from 'react';
+
 
 const TasksView = () => {
   const tasks: TaskType[] = initialTasks;
+
+  // Confetti animation
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const celebrate = () => {
+    if (showConfetti) {
+      return;
+    }
+    console.log('hola')
+    setShowConfetti(true);
+    const celebrationTime = 3000;
+
+    setTimeout(() => {
+      setShowConfetti(false)
+    }, celebrationTime)
+  }
+
+  const toggleCallback = (task: TaskType) => {
+    if (task.completed) {
+      celebrate()
+    }
+  }
 
   const {
     completedTasks,
@@ -27,10 +52,15 @@ const TasksView = () => {
     handleDragEnd,
     completedTaskColumnId,
     uncompletedTaskColumnId
-  } = useTasks(tasks);
+  } = useTasks(
+    tasks,
+    toggleCallback
+  );
 
   return (
     <section className={classes.tasksView}>
+      {<Confetti mode="fall" fadeOutHeight={showConfetti ? 0.8 : 0}/>}
+
       <Header addNewTask={addNewTask}/>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={classes.tasksContainer}>

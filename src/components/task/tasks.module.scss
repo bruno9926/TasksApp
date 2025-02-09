@@ -29,6 +29,11 @@ $gray-border: #4E4E4E;
 
     transition: transform 0.4s ease-in-out;
 
+    // we want all the icons to be white
+    svg {
+      color: white;
+    }
+
     &:hover {
       transform: scale(1.05);
       cursor :grab;
