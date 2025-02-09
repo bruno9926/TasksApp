@@ -1,7 +1,7 @@
 // types
 import type TaskType from '../../types/Tasks';
 // components
-import Confetti from 'react-confetti-boom';
+import TaskConfetti from './TaskConfetti/TaskConfetti';
 import TaskColumn from '../TaskColumn/TaskColumn';
 import { DragDropContext } from "@hello-pangea/dnd";
 // styles
@@ -27,7 +27,6 @@ const TasksView = () => {
     if (showConfetti) {
       return;
     }
-    console.log('hola')
     setShowConfetti(true);
     const celebrationTime = 3000;
 
@@ -59,8 +58,7 @@ const TasksView = () => {
 
   return (
     <section className={classes.tasksView}>
-      {<Confetti mode="fall" fadeOutHeight={showConfetti ? 0.8 : 0}/>}
-
+      <TaskConfetti show={showConfetti}/>
       <Header addNewTask={addNewTask}/>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={classes.tasksContainer}>
