@@ -10,17 +10,25 @@ type TaskColumnProps = {
   header: {title: string},
   status: TaskStatuses,
   tasks: TaskType[],
-  onToggle: (id: string) => () => void
+  onToggle: (id: string) => () => void,
+  onDelete: (id: string) => () => void,
+  onUpdate: (id: string) => (task: TaskType) => void
 }
 
-const TaskColumn = ({ header, status, tasks, onToggle }: TaskColumnProps) => {
+const TaskColumn = ({
+  header, status, tasks,
+  onToggle, onDelete, onUpdate
+}: TaskColumnProps) => {
   return (
     <div className={classes.tasksColumn}>
         <HeaderChip title={`${header.title} (${tasks.length})`} status={status} />
         {tasks.map(task => (
             <Task
+              key={task.id}
               task={task}
               onToggle={onToggle(task.id)}
+              onDelete={onDelete(task.id)}
+              onUpdate={onUpdate(task.id)}
             />
         ))}
     </div>
