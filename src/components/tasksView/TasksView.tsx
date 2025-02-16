@@ -12,13 +12,10 @@ import { FaPlus } from "react-icons/fa6";
 // hooks
 import useTasks from '../../hooks/useTasks';
 
-import initialTasks from './initialTasks.json';
-
 import { useState } from 'react';
 
 
 const TasksView = () => {
-  const tasks: TaskType[] = initialTasks;
 
   // Confetti animation
   const [showConfetti, setShowConfetti] = useState(false);
@@ -52,7 +49,6 @@ const TasksView = () => {
     completedTaskColumnId,
     uncompletedTaskColumnId
   } = useTasks(
-    tasks,
     toggleCallback
   );
 

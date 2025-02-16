@@ -1,42 +1,64 @@
 import { v4 as uuid } from 'uuid';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DropResult  } from '@hello-pangea/dnd';
 // types
 import type TaskType from '../types/Tasks';
 
+const env = import.meta.env;
+
 const useTasks = (
-    initialTasks: TaskType[],
     toggleCallback: (task: TaskType) => void = () => {}
 ) => {
-    const [completedTasks, setCompletedTasks] = useState<TaskType[]>(initialTasks.filter(task => task.completed));
-    const [uncompletedTasks, setUncompletedTasks] = useState<TaskType[]>(initialTasks.filter(task => !task.completed));
+
+    useEffect(() => {
+        if (!env.VITE_API_URL) {
+            console.error("API URL is not defined!");
+            setFetching(false);
+            return;
+        }
+
+        setFetching(true);
+        fetch(env.VITE_API_URL)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Error fetching tasks")
+            }
+            return res.json()
+        })
+        .then(json => {
+            let tasks = json;
+            setTasks(tasks);
+        })
+        .catch(err => {
+            console.log(err)
+            console.error(err)
+        })
+        .finally(() =>{
+            setFetching(false)
+        })
+    },[])
+
+    const [fetching, setFetching] = useState(false);
+    const [tasks, setTasks] = useState<TaskType[]>([]);
 
     const handleToggleTask = (id: string) => () => {
-        setCompletedTasks(prevCompleted => {
-            const task = uncompletedTasks.find(task => task.id === id);
-            // if task is uncompleted, we send it to the completed tasks
-            if (task) {
-                let updatedTask = {...task, completed: true};
-                toggleCallback(updatedTask);
-                return [...prevCompleted, updatedTask];
-            } else {
-            // else we remove it from the completed tasks
-                return prevCompleted.filter(task => task.id !== id);
+        setTasks(prevTasks => {
+            let taskIndex = prevTasks.findIndex(task => task.id === id);
+            if (taskIndex === -1) {
+                return prevTasks;
             }
-        })
-
-        setUncompletedTasks(prevUncompleted => {
-            const task = completedTasks.find(task => task.id === id);
-            // if task is completed, we send it to the uncompleted tasks
-            if (task) {
-                let updatedTask: TaskType = {...task, completed: false};
-                toggleCallback(updatedTask);
-                return [...prevUncompleted, updatedTask];
-            } else {
-            // else we remove it from the uncompleted tasks
-            return prevUncompleted.filter(task => task.id !== id);
-            }
-        })
+    
+            // We create a copy of the tasks without mutating it directly
+            const updatedTasks = [...prevTasks];
+            const updatedTask = { ...updatedTasks[taskIndex], completed: !updatedTasks[taskIndex].completed };
+    
+            // We always put the task at last position
+            updatedTasks.splice(taskIndex, 1);
+            updatedTasks.push(updatedTask);
+    
+            toggleCallback(updatedTask);
+            return updatedTasks;
+        });
     }
 
     const addNewTask = () => {
@@ -45,84 +67,67 @@ const useTasks = (
         const sampleTask: TaskType = {
             id: newId,
             title: "Sample Task",
-            description: "What are you plannig?",
+            description: "What are you planning?",
             completed: false
         }
-        setUncompletedTasks([...uncompletedTasks, sampleTask])
+        setTasks(prevTasks => [...prevTasks, sampleTask])
     }
 
     const deleteTask = (id: string) => () => {
-        setCompletedTasks(completedTasks.filter(task => task.id !== id));
-        setUncompletedTasks(uncompletedTasks.filter(task => task.id !== id));
+        setTasks(tasks.filter(task => task.id !== id));
     }
 
     const updateTask = (id: string) => (task: TaskType) => {
-        setCompletedTasks(
-            completedTasks.map(taskInList => taskInList.id === id ?
+        setTasks( prevTasks =>
+            prevTasks.map(taskInList => taskInList.id === id ?
                 {...taskInList, ...task} : taskInList
             )
-        );
-        setUncompletedTasks(
-            uncompletedTasks.map(taskInList => taskInList.id === id ?
-                {...taskInList, ...task} : taskInList
-            )
-        )
+        ); 
     }
 
     const completedTaskColumnId = "completed";
     const uncompletedTaskColumnId = "uncompleted";
 
-    // should we sepparate this function in a different hook?
-    const handleDragEnd = (result: DropResult ) => {
+    const handleDragEnd = (result: DropResult) => {
         if (!result.destination) {
-          return;
+            return;
         }
-
-        // we arrage uncompleted tasks first and then completed tasks
-        const updatedTasks = [...uncompletedTasks, ...completedTasks];
-
-        // since the result brings the index only for the current column, we need to take into account the other column
-        // if the task comes from the completed list, we need to add the length of the uncompleted tasks to the source index
-        let sourceIndex = result.source.index + (result.source.droppableId === completedTaskColumnId ? uncompletedTasks.length : 0);
-        // if the task go to the completed list, we need to add the length of the uncompleted tasks to the destination index
-        let destinationIndex = result.destination.index +
-            (result.destination.droppableId === completedTaskColumnId ?
-                // the -1 is because we are removing the task from the list
-                uncompletedTasks.length - (result.source.droppableId === uncompletedTaskColumnId ? 1 : 0) 
-                : 0
-            );
     
-        const [movedTask] = updatedTasks.splice(sourceIndex, 1);
-        
-        if (result.destination.droppableId === completedTaskColumnId) {
-            if (!movedTask.completed) {
-                movedTask.completed = true;
+        setTasks(prevTasks => {
+            const taskIndex = prevTasks.findIndex(task => task.id === result.draggableId);
+            if (taskIndex === -1) return prevTasks;
+    
+            const updatedTasks = [...prevTasks];
+            const [movedTask] = updatedTasks.splice(taskIndex, 1);
+    
+            if (result.destination?.droppableId !== result.source.droppableId) {
+                movedTask.completed = !movedTask.completed;
                 toggleCallback(movedTask);
             }
-        }
-        if (result.destination.droppableId === uncompletedTaskColumnId) {
-            if (movedTask.completed) {
-                movedTask.completed = false;
-                toggleCallback(movedTask);
+            
+            let destinationIndex = result.destination!.index;
+            if (result.source.droppableId === uncompletedTaskColumnId && result.destination?.droppableId == completedTaskColumnId) {
+                let numberOfUncompletedTasks = prevTasks.filter(t => !t.completed).length;
+                destinationIndex += numberOfUncompletedTasks;
             }
-        }
-
-        updatedTasks.splice(destinationIndex, 0, movedTask);
-
-        setUncompletedTasks(updatedTasks.filter(task => !task.completed));
-        setCompletedTasks(updatedTasks.filter(task => task.completed));
-    }
+            console.log(destinationIndex)
+            updatedTasks.splice(destinationIndex, 0, movedTask);
+    
+            return updatedTasks;
+        });
+    };
 
     return {
-        completedTasks,
-        uncompletedTasks,
+        completedTasks: tasks.filter(t => t.completed),
+        uncompletedTasks: tasks.filter(t => !t.completed),
         handleToggleTask,
         addNewTask,
         deleteTask,
         updateTask,
         handleDragEnd,
         completedTaskColumnId,
-        uncompletedTaskColumnId
+        uncompletedTaskColumnId,
+        fetching
     }
 }
 
