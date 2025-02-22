@@ -1,7 +1,7 @@
 $checked-color: #2D9348;
 $hover-complete-color: #d2fdd1;
 $hover-color: #9290fa;
-$gray-border: #4E4E4E;
+$gray-border: #363636;
 
 @use '../../styles/variables.scss' as v;
 
@@ -15,24 +15,62 @@ $gray-border: #4E4E4E;
   }
 }
 
-.taskCard {
+@mixin cardContainer() {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 17rem;
+  box-sizing: border-box;
+  padding: 0rem 1rem 1rem 1rem;
+  border: 3px solid $gray-border;
+  border-radius: 18px;
+  background-color: #262626;
+
+  // we want all the icons to be white
+  svg {
+    color: white;
+  }
+
+  .taskTitle {
+    width: 100%;
+    color: #DEDEDE;
+    margin: 2rem 0 .5rem 0;
+    
+  }
+
+  .description {
+    width: 100%;
+    color: #7e7e7e;
+    font-weight: 500;
+    margin-bottom: 2rem;
+  }
+
+  .taskFooter {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: start;
-    width: 17rem;
-    box-sizing: border-box;
-    padding: 0rem 1rem 1rem 1rem;
-    border: 3px solid #4E4E4E;
-    border-radius: 18px;
-    background-color: #262626;
-    border-color: $gray-border;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+  }
 
+  .checkboxContainer {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    gap: 0.5rem;
+    transition: border-color 0.25s;
+  }
+
+}
+
+.taskSkeleton {
+  @include cardContainer();
+}
+
+.taskCard {
+    @include cardContainer();
+    
     transition: transform 0.4s ease-in-out;
-
-    // we want all the icons to be white
-    svg {
-      color: white;
-    }
 
     &:hover {
       transform: scale(1.05);
@@ -41,8 +79,6 @@ $gray-border: #4E4E4E;
     }
 
     .taskTitle {
-      color: #DEDEDE;
-      margin: 2rem 0 .5rem 0;
       @include editable($hover-color);
     }
 
@@ -63,9 +99,6 @@ $gray-border: #4E4E4E;
     }
 
     .description {
-      color: #7e7e7e;
-      font-weight: 500;
-      margin-bottom: 2rem;
       @include editable($hover-color);
     }
 
@@ -85,12 +118,20 @@ $gray-border: #4E4E4E;
       }
     }
 
+    .taskFooter {
+      .deleteButton {
+        background-color: transparent;
+        transition: all 0.4s ease-in-out;
+        width: 1.8rem;
+        height: 1.8rem;
+
+        &:hover {
+          background-color: rgb(199, 98, 73);
+        }
+      }
+    }
+
     .checkboxContainer {
-      display: flex;
-      align-items: center;
-      width: fit-content;
-      gap: 0.5rem;
-      transition: border-color 0.25s;
 
       .checkbox {
         width: 1.5rem;
@@ -108,24 +149,6 @@ $gray-border: #4E4E4E;
 
         .indicator {
           height: 1.2rem;
-        }
-      }
-    }
-
-    .taskFooter {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 1rem;
-
-      .deleteButton {
-        background-color: transparent;
-        transition: all 0.4s ease-in-out;
-        width: 1.8rem;
-        height: 1.8rem;
-
-        &:hover {
-          background-color: rgb(199, 98, 73);
         }
       }
     }

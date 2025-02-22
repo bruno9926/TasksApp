@@ -41,13 +41,14 @@ const TasksView = () => {
   const {
     completedTasks,
     uncompletedTasks,
+    completedTaskColumnId,
+    uncompletedTaskColumnId,
+    fetching,
     handleToggleTask,
     addNewTask,
     deleteTask,
     updateTask,
     handleDragEnd,
-    completedTaskColumnId,
-    uncompletedTaskColumnId
   } = useTasks(
     toggleCallback
   );
@@ -55,6 +56,7 @@ const TasksView = () => {
   return (
     <section className={classes.tasksView}>
       <TaskConfetti show={showConfetti}/>
+      
       <Header addNewTask={addNewTask}/>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={classes.tasksContainer}>
@@ -66,6 +68,7 @@ const TasksView = () => {
             onToggle={handleToggleTask}
             onDelete={deleteTask}
             onUpdate={updateTask}
+            fetching={fetching}
           />
           <TaskColumn
             id={completedTaskColumnId}
@@ -75,6 +78,7 @@ const TasksView = () => {
             onToggle={handleToggleTask}
             onDelete={deleteTask}
             onUpdate={updateTask}
+            fetching={fetching}
           />
         </div>
       </DragDropContext>
