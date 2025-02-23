@@ -9,6 +9,7 @@ import classes from './tasksView.module.scss';
 import TaskStatuses from '../../types/TaskStatuses';
 // icons
 import { FaPlus } from "react-icons/fa6";
+import { FiRefreshCcw } from "react-icons/fi";
 // hooks
 import useTasks from '../../hooks/useTasks';
 
@@ -49,15 +50,38 @@ const TasksView = () => {
     deleteTask,
     updateTask,
     handleDragEnd,
+    fetchTasks
   } = useTasks(
     toggleCallback
   );
+
+  const Header = () => {
+    return (
+      <div className={classes.header}>
+        <h1>Your Tasks</h1>
+        <button
+          className={classes.addTask}
+          onClick={() => addNewTask()}
+          title='Add a task'
+        >
+          <FaPlus />
+        </button>
+        <button
+          className={classes.refresh}
+          onClick={() => fetchTasks()}
+          title='Refresh tasks'
+        >
+          <FiRefreshCcw />
+        </button>
+      </div>
+    )
+  }
 
   return (
     <section className={classes.tasksView}>
       <TaskConfetti show={showConfetti}/>
       
-      <Header addNewTask={addNewTask}/>
+      <Header/>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={classes.tasksContainer}>
           <TaskColumn
@@ -83,17 +107,6 @@ const TasksView = () => {
         </div>
       </DragDropContext>
     </section>
-  )
-}
-
-const Header = ({ addNewTask } : { addNewTask: () => void }) => {
-  return (
-    <div className={classes.header}>
-      <h1>Your Tasks</h1>
-      <button className={classes.addTask} onClick={() => addNewTask()}>
-        <FaPlus />
-      </button>
-    </div>
   )
 }
 

@@ -8,7 +8,6 @@ import TaskDescription from "./taskDescription/TaskDescription";
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon } from '@radix-ui/react-icons';
 import { FiTrash } from "react-icons/fi";
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 type TaskProps = {
     task: TaskType

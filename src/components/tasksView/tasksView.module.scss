@@ -15,7 +15,7 @@
         margin: 2rem .5rem;
         margin-bottom: 2.5rem;
 
-        button.addTask {
+        @mixin headerButton($color) {
             display: flex;
             justify-content: center;
 
@@ -23,7 +23,7 @@
 
             margin-bottom: 6px;
             border-radius: 5px;
-            background-color: #6145fd;
+            background-color: $color;
             cursor: pointer;
 
             color: white;
@@ -37,12 +37,20 @@
             }
 
             &:hover {
-                background-color: #4d3abf;
+                //background-color: #4d3abf;
                 transform: scale(1.08);
             }
             
             height: 2.5rem;
             width: 2.5rem;
+        }
+
+        button.addTask {
+           @include headerButton(#6145fd)
+        }
+
+        button.refresh {
+            @include headerButton(#673AB7)
         }
     }
 
