@@ -2,13 +2,15 @@ import type TaskType from '../types/Tasks';
 import useTaskManager from './useTaskManager';
 import useFetchTasks from './useFetchTasks';
 import useTaskDragAndDrop from './useTaskDragAndDrop';
+import TasksAPIInterface, { getDefaultImplementation } from '../interfaces/TasksAPIInterface';
 
 const useTasks = (
-    toggleCallback: (task: TaskType) => void
+    toggleCallback: (task: TaskType) => void,
+    tasksAPiInterface: TasksAPIInterface | undefined = getDefaultImplementation()
 ) => {
 
-    const { tasks, setTasks, handleToggleTask, addNewTask, deleteTask, updateTask } = useTaskManager(toggleCallback);
-    const { fetchTasks, fetching } = useFetchTasks(setTasks);
+    const { tasks, setTasks, handleToggleTask, addNewTask, deleteTask, updateTask } = useTaskManager(toggleCallback, tasksAPiInterface);
+    const { fetchTasks, fetching } = useFetchTasks(setTasks, tasksAPiInterface);
     const { handleDragEnd, completedTaskColumnId, uncompletedTaskColumnId } = useTaskDragAndDrop(setTasks, toggleCallback);
 
     return {

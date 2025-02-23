@@ -1,23 +1,28 @@
 import { useState } from 'react';
-import { v4 as uuid } from 'uuid';
 import type TaskType from '../types/Tasks';
+import TasksAPIInterface from '../interfaces/TasksAPIInterface';
 
 
 const useTaskManager = (
-    toggleCallback: (task: TaskType) => void
+    toggleCallback: (task: TaskType) => void,
+    tasksAPiInterface: TasksAPIInterface
 ) => {
     const [tasks, setTasks] = useState<TaskType[]>([]);
 
-    const addNewTask = () => {
-        let newId = uuid();
-
+    const addNewTask = async () => {
         const sampleTask: TaskType = {
-            id: newId,
+            id: '', // id is assigned in the backend, we put an empty id to satisfy the type, fix this later
             title: "Sample Task",
             description: "What are you planning?",
             completed: false
         }
-        setTasks(prevTasks => [...prevTasks, sampleTask])
+
+        try {
+            const resultTasks: TaskType[] = await tasksAPiInterface.post(sampleTask);
+            setTasks(resultTasks);
+        } catch(err) {
+            console.error(err);
+        }
     }
 
     const deleteTask = (id: string) => () => {

@@ -30,7 +30,6 @@ const useTaskDragAndDrop = (
                 let numberOfUncompletedTasks = prevTasks.filter(t => !t.completed).length;
                 destinationIndex += numberOfUncompletedTasks;
             }
-            console.log(destinationIndex)
             updatedTasks.splice(destinationIndex, 0, movedTask);
     
             return updatedTasks;

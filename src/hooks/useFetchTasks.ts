@@ -1,34 +1,36 @@
 import { useState, useEffect } from "react";
 import type TaskType from "../types/Tasks";
+import TasksAPIInterface from "../interfaces/TasksAPIInterface";
 
 const env = import.meta.env;
 
-const useFetchTasks = (setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>) => {
+const useFetchTasks = (
+    setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>,
+    tasksAPiInterface: TasksAPIInterface
+) => {
     const [fetching, setFetching] = useState(false);
 
     useEffect(() => {
         fetchTasks();
     }, []);
 
-    const fetchTasks = () => {
+    const fetchTasks = async () => {
         if (!env.VITE_API_URL) {
             console.error("API URL is not defined!");
             setFetching(false);
             return;
         }
 
-        setFetching(true);
-        fetch(env.VITE_API_URL)
-            .then((res) => {
-                if (!res.ok) throw new Error("Error fetching tasks");
-                return res.json();
-            })
-            .then((json) => {
-                setTasks(json)
-            })
-            .catch((err) => console.error(err))
-            .finally(() => setFetching(false));
-    };
+        try {
+            setFetching(true);
+            const retrievedTasks: TaskType[] = await tasksAPiInterface.getAll();
+            setTasks(retrievedTasks)
+        } catch(error) {
+            console.error(error);
+        } finally {
+            setFetching(false);
+        }
+    }
 
     return { fetchTasks, fetching };
 };
