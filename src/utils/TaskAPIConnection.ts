@@ -8,6 +8,10 @@ export default class TaskAPIConnection implements TasksAPIInterface {
 
     private constructor(){}
 
+    private readonly defaultHeader = {
+         "Content-Type": "application/json"
+    }
+
     static getInstance(): TaskAPIConnection {
         if (!TaskAPIConnection.instance) {
             TaskAPIConnection.instance = new TaskAPIConnection();
@@ -30,12 +34,25 @@ export default class TaskAPIConnection implements TasksAPIInterface {
         try {
             const res = await fetch(env.VITE_API_URL, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: {...this.defaultHeader},
                 body: JSON.stringify(task)
             });
             if (!res.ok) throw new Error("Error posting task");
+            return await res.json();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    async update(task: Task): Promise<Task[]> {
+        try {
+            const res = await fetch(`${env.VITE_API_URL}/${task.id}`, {
+                method: "PUT",
+                headers: {...this.defaultHeader},
+                body: JSON.stringify(task)
+            });
+            if (!res.ok) throw new Error("Error updating task");
             return await res.json();
         } catch (error) {
             console.error(error);

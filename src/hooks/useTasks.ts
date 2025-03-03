@@ -9,9 +9,14 @@ const useTasks = (
     tasksAPiInterface: TasksAPIInterface | undefined = getDefaultImplementation()
 ) => {
 
-    const { tasks, setTasks, handleToggleTask, addNewTask, deleteTask, updateTask } = useTaskManager(toggleCallback, tasksAPiInterface);
+    const { tasks, setTasks, handleToggleTask, addNewTask, deleteTask, updateTask } = useTaskManager(tasksAPiInterface);
     const { fetchTasks, fetching } = useFetchTasks(setTasks, tasksAPiInterface);
-    const { handleDragEnd, completedTaskColumnId, uncompletedTaskColumnId } = useTaskDragAndDrop(setTasks, toggleCallback);
+    const { handleDragEnd, completedTaskColumnId, uncompletedTaskColumnId } = useTaskDragAndDrop(
+        tasks,
+        setTasks,
+        tasksAPiInterface,
+        toggleCallback
+    );
 
     return {
         completedTasks: tasks.filter(t => t.completed),

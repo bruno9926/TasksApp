@@ -4,8 +4,7 @@ import TasksAPIInterface from '../interfaces/TasksAPIInterface';
 
 
 const useTaskManager = (
-    toggleCallback: (task: TaskType) => void,
-    tasksAPiInterface: TasksAPIInterface
+    API: TasksAPIInterface
 ) => {
     const [tasks, setTasks] = useState<TaskType[]>([]);
 
@@ -18,7 +17,7 @@ const useTaskManager = (
         }
 
         try {
-            const resultTasks: TaskType[] = await tasksAPiInterface.post(sampleTask);
+            const resultTasks: TaskType[] = await API.post(sampleTask);
             setTasks(resultTasks);
         } catch(err) {
             console.error(err);
@@ -29,32 +28,19 @@ const useTaskManager = (
         setTasks(tasks.filter(task => task.id !== id));
     }
 
-    const updateTask = (id: string) => (task: TaskType) => {
-        setTasks(prevTasks =>
-            prevTasks.map(taskInList => taskInList.id === id ?
-                { ...taskInList, ...task } : taskInList
-            )
-        );
+    const updateTask = (id: string) => async (task: TaskType) => {
+        let updatedTasks = await API.update({...task, id});
+        setTasks(updatedTasks);
     }
 
-    const handleToggleTask = (id: string) => () => {
-        setTasks(prevTasks => {
-            let taskIndex = prevTasks.findIndex(task => task.id === id);
-            if (taskIndex === -1) {
-                return prevTasks;
-            }
-    
-            // We create a copy of the tasks without mutating it directly
-            const updatedTasks = [...prevTasks];
-            const updatedTask = { ...updatedTasks[taskIndex], completed: !updatedTasks[taskIndex].completed };
-    
-            // We always put the task at last position
-            updatedTasks.splice(taskIndex, 1);
-            updatedTasks.push(updatedTask);
-    
-            toggleCallback(updatedTask);
-            return updatedTasks;
-        });
+    const handleToggleTask = (id: string) => async () => {
+        let taskIndex = tasks.findIndex(task => task.id === id);
+
+        if (taskIndex === -1) throw Error("Task not found");
+        let task: TaskType = tasks[taskIndex];
+
+        const taskToUpdate: TaskType = {...task, completed: !task.completed};
+        await updateTask(id)(taskToUpdate);
     }
 
     return {

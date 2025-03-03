@@ -10,7 +10,6 @@ $gray-border: #363636;
 @mixin editable($hover-color) {
   &:hover {
     cursor: pointer;
-    cursor: pointer;
     color: $hover-color;
   }
 }
