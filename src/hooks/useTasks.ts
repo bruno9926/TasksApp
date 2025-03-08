@@ -23,31 +23,42 @@ const useTasks = (
 
     // separate all the tasks into different categories
     useEffect(() => {
-        const completed = tasks.filter(task => task.completed);
-        const uncompleted = tasks.filter(task => !task.completed);
+        const newCompletedTasks: TaskType[] = [];
+        const newUncompletedTasks: TaskType[] = [];
 
-        setCompletedTasks(completed.map((task, index) => ({ ...task, order: index })));
-        setUncompletedTasks(uncompleted.map((task, index) => ({ ...task, order: index })));
+        // sort tasks by order
+        tasks.forEach(task => {
+            if (task.completed) {
+                newCompletedTasks.push({ ...task });
+            } else {
+                newUncompletedTasks.push({ ...task });
+            }
+        })
+
+        setCompletedTasks(newCompletedTasks.map((task, index) => ({ ...task, order: index })));
+        setUncompletedTasks(newUncompletedTasks.map((task, index) => ({ ...task, order: index })));
     }, [tasks]);
 
     // column ids
     const completedTaskColumnId: string = "completed";
     const uncompletedTaskColumnId: string = "uncompleted";
-    subscribeSetterFunction(completedTaskColumnId, {
-        setTasks: setCompletedTasks,
-        onTaskMoved: (task: TaskType) => {
-            task.completed = true;
-            toggleCallback(task);
-
-        }
-    });
-    subscribeSetterFunction(uncompletedTaskColumnId, {
-        setTasks: setUncompletedTasks,
-        onTaskMoved: (task: TaskType) => {
-            task.completed = false;
-            toggleCallback(task);
-        }
-    });
+    
+    useEffect(() => {
+        subscribeSetterFunction(completedTaskColumnId, {
+            setTasks: setCompletedTasks,
+            onTaskMoved: (task: TaskType) => {
+                task.completed = true;
+                toggleCallback(task);
+            }
+        });
+        subscribeSetterFunction(uncompletedTaskColumnId, {
+            setTasks: setUncompletedTasks,
+            onTaskMoved: (task: TaskType) => {
+                task.completed = false;
+                toggleCallback(task);
+            }
+        });
+    }, []);
 
     return {
         completedTasks: completedTasks,

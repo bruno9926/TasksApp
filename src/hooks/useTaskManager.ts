@@ -20,7 +20,7 @@ const useTaskManager = (
         try {
             const resultTasks: TaskType[] = await API.post(sampleTask);
             setTasks(resultTasks);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     }
@@ -29,9 +29,17 @@ const useTaskManager = (
         setTasks(tasks.filter(task => task.id !== id));
     }
 
-    const updateTask = (id: string) => async (task: TaskType) => {
-        let updatedTasks = await API.update({...task, id});
-        setTasks(updatedTasks);
+    const updateTask = (id: string) => async (updatedTask: TaskType) => {
+        const prevTasks = [...tasks];
+        setTasks(prevTasks.map(task => (task.id === id ? updatedTask : task)));
+
+        try {
+            const updatedTasks = await API.update({ ...updatedTask, id });
+            setTasks(updatedTasks);
+        } catch (err) {
+            console.error("Error updating task:", err);
+            setTasks(prevTasks);
+        }
     }
 
     const handleToggleTask = (id: string) => async () => {
@@ -40,7 +48,7 @@ const useTaskManager = (
         if (taskIndex === -1) throw Error("Task not found");
         let task: TaskType = tasks[taskIndex];
 
-        const taskToUpdate: TaskType = {...task, completed: !task.completed};
+        const taskToUpdate: TaskType = { ...task, completed: !task.completed };
         toggleCallback(taskToUpdate);
 
         await updateTask(id)(taskToUpdate);

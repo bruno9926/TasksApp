@@ -2,6 +2,7 @@ import { DropResult } from "@hello-pangea/dnd";
 import type TaskType from "../types/Tasks";
 import Task from "../types/Tasks";
 import TasksAPIInterface from '../interfaces/TasksAPIInterface';
+import { useRef } from "react";
 
 const useTaskDragAndDrop = (
     tasks: Task[],
@@ -12,13 +13,13 @@ const useTaskDragAndDrop = (
         setTasks: dispatchTask,
         onTaskMoved: (task: TaskType) => void
     };
-    const setColumnTasksFunctions = new Map<string, subscriptionBody>([]);
+    const columnSubscriptions = useRef(new Map<string, subscriptionBody>([]));
 
     const subscribeSetterFunction = (columnId: string, subscriptionBody: {
         setTasks: dispatchTask,
         onTaskMoved?: (task: TaskType) => void
     }) => {
-        setColumnTasksFunctions.set(columnId, {
+        columnSubscriptions.current.set(columnId, {
             setTasks: subscriptionBody.setTasks,
             onTaskMoved: subscriptionBody.onTaskMoved || (() => { })
         })
@@ -58,12 +59,12 @@ const useTaskDragAndDrop = (
 
     // reorders the tasks in the origin
     const sortInOriginColumn = (result: DropResult, newIndex: number) => {
-        const setOriginColumnTasks = setColumnTasksFunctions.get(result.source.droppableId)?.setTasks;
-        if (!setOriginColumnTasks) {
+        const origin = columnSubscriptions.current.get(result.source.droppableId);
+        if (!origin) {
             return;
         }
 
-        setOriginColumnTasks(prevTasks => {
+        origin.setTasks(prevTasks => {
             let copyTasks = [...prevTasks];
             const movedTaskIndex = copyTasks.findIndex(task => task.id === result.draggableId);
             if (movedTaskIndex === -1) {
@@ -78,33 +79,35 @@ const useTaskDragAndDrop = (
 
     // removes a task from the origin column and adds it to the destination column
     const exportToDestinationColumn = (result: DropResult, newIndex: number) => {
-        if (!result.destination) {
-            return;
-        }
-        const origin = setColumnTasksFunctions.get(result.source.droppableId);
-        const destionation = setColumnTasksFunctions.get(result.destination.droppableId);
-        if (!origin || !destionation) {
-            return;
-        }
+        if (!result.destination) return;
+
+        const origin = columnSubscriptions.current.get(result.source.droppableId);
+        const destionation = columnSubscriptions.current.get(result.destination.droppableId);
+
+        if (!origin || !destionation) return;
+
+        let movedTask: TaskType | null = null;
+
 
         // remove from origin column
         origin.setTasks(prevTasks => {
             let copyTasks = [...prevTasks];
             let movedTaskIndex = copyTasks.findIndex(task => task.id === result.draggableId);
-            if (movedTaskIndex === -1) {
-                return prevTasks;
-            }
-            const movedTask = copyTasks.splice(movedTaskIndex, 1)[0];
+            if (movedTaskIndex === -1) return prevTasks;
 
-            //add to destination column
-            destionation.setTasks(prevTasks => {
-                let copyTasks = [...prevTasks];
-                copyTasks.splice(newIndex, 0, movedTask);
+            movedTask = { ...copyTasks[movedTaskIndex] }; // Copia segura
+            copyTasks.splice(movedTaskIndex, 1);
 
-                destionation.onTaskMoved(movedTask);
-                return updateOrderFromIndex(copyTasks);
-            })
+            return updateOrderFromIndex(copyTasks);
+        })
 
+        //add to destination column
+        destionation.setTasks(prevTasks => {
+            if (!movedTask) return prevTasks;
+
+            let copyTasks = [...prevTasks];
+            copyTasks.splice(newIndex, 0, movedTask);
+            destionation.onTaskMoved(movedTask);
             return updateOrderFromIndex(copyTasks);
         })
     }
