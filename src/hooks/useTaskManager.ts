@@ -4,7 +4,8 @@ import TasksAPIInterface from '../interfaces/TasksAPIInterface';
 
 
 const useTaskManager = (
-    API: TasksAPIInterface
+    API: TasksAPIInterface,
+    toggleCallback: (task: TaskType) => void
 ) => {
     const [tasks, setTasks] = useState<TaskType[]>([]);
 
@@ -40,6 +41,8 @@ const useTaskManager = (
         let task: TaskType = tasks[taskIndex];
 
         const taskToUpdate: TaskType = {...task, completed: !task.completed};
+        toggleCallback(taskToUpdate);
+
         await updateTask(id)(taskToUpdate);
     }
 
