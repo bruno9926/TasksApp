@@ -16,10 +16,7 @@ const useTasks = (
 
     const { tasks, setTasks, handleToggleTask, addNewTask, deleteTask, updateTask } = useTaskManager(tasksAPiInterface, toggleCallback);
     const { fetchTasks, fetching } = useFetchTasks(setTasks, tasksAPiInterface);
-    const { handleDragEnd, subscribeSetterFunction } = useTaskDragAndDrop(
-        tasks,
-        tasksAPiInterface
-    );
+    const { handleDragEnd, subscribeSetterFunction } = useTaskDragAndDrop(tasksAPiInterface);
 
     // separate all the tasks into different categories
     useEffect(() => {
@@ -43,6 +40,7 @@ const useTasks = (
     const completedTaskColumnId: string = "completed";
     const uncompletedTaskColumnId: string = "uncompleted";
     
+    // subscrite columns to use the drag and drop functionality
     useEffect(() => {
         subscribeSetterFunction(completedTaskColumnId, {
             setTasks: setCompletedTasks,

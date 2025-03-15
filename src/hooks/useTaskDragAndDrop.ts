@@ -1,12 +1,9 @@
 import { DropResult } from "@hello-pangea/dnd";
 import type TaskType from "../types/Tasks";
-import Task from "../types/Tasks";
 import TasksAPIInterface from '../interfaces/TasksAPIInterface';
 import { useRef } from "react";
 
-const useTaskDragAndDrop = (
-    tasks: Task[],
-    API: TasksAPIInterface) => {
+const useTaskDragAndDrop = (API: TasksAPIInterface) => {
 
     type dispatchTask = React.Dispatch<React.SetStateAction<TaskType[]>>;
     type subscriptionBody = {
@@ -25,7 +22,7 @@ const useTaskDragAndDrop = (
         })
     }
 
-    const handleDragEnd = async (result: DropResult) => {
+    const handleDragEnd = (result: DropResult) => {
         if (!result.destination) {
             return;
         }
@@ -33,17 +30,7 @@ const useTaskDragAndDrop = (
         // Optimistic UI approach
         // we change the state locally, and then send a request to update it remotely
         // if the remote change fails, we go back to our previous state
-        const initialState = [...tasks]
-        //setLocalChanges(result);
-        organize(result);
-        try {
-            //await sendChangesToBackend(result)
-        } catch {
-            //setTasks(initialState);
-        }
-    };
 
-    const organize = (result: DropResult) => {
         let originColumn = result.source.droppableId;
         let destinationColumn = result.destination?.droppableId;
 
@@ -73,7 +60,9 @@ const useTaskDragAndDrop = (
             let movedTask = copyTasks.splice(movedTaskIndex, 1)[0];
             copyTasks.splice(newIndex, 0, movedTask);
 
-            return updateOrderFromIndex(copyTasks);
+            let orderedTasks = updateOrderFromIndex(copyTasks);
+            sendChangesToBackend(orderedTasks);
+            return orderedTasks;
         })
     }
 
@@ -82,40 +71,74 @@ const useTaskDragAndDrop = (
         if (!result.destination) return;
 
         const origin = columnSubscriptions.current.get(result.source.droppableId);
-        const destionation = columnSubscriptions.current.get(result.destination.droppableId);
+        const destination = columnSubscriptions.current.get(result.destination.droppableId);
 
-        if (!origin || !destionation) return;
-
-        let movedTask: TaskType | null = null;
-
+        if (!origin || !destination) return;
 
         // remove from origin column
-        origin.setTasks(prevTasks => {
-            let copyTasks = [...prevTasks];
-            let movedTaskIndex = copyTasks.findIndex(task => task.id === result.draggableId);
-            if (movedTaskIndex === -1) return prevTasks;
-
-            movedTask = { ...copyTasks[movedTaskIndex] }; // Copia segura
-            copyTasks.splice(movedTaskIndex, 1);
-
-            return updateOrderFromIndex(copyTasks);
-        })
-
-        //add to destination column
-        destionation.setTasks(prevTasks => {
-            if (!movedTask) return prevTasks;
-
-            let copyTasks = [...prevTasks];
-            copyTasks.splice(newIndex, 0, movedTask);
-            destionation.onTaskMoved(movedTask);
-            return updateOrderFromIndex(copyTasks);
-        })
+        removeTaskFromColumn(origin, result.draggableId)
+            .then(movedTask => {
+                addTaskToColumn(destination, movedTask, newIndex);
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
+
+    const removeTaskFromColumn = (column: subscriptionBody, taskId: string): Promise<TaskType> => {
+        return new Promise((resolve, reject) => {
+            column.setTasks(prevTasks => {
+                let copyTasks = [...prevTasks];
+                let movedTaskIndex = copyTasks.findIndex(task => task.id === taskId);
+                if (movedTaskIndex === -1) {
+                    reject(new Error("Task not found"));
+                    return prevTasks;
+                }
+
+                let movedTask = { ...copyTasks[movedTaskIndex] };
+                copyTasks.splice(movedTaskIndex, 1);
+
+                let orderedTasks = updateOrderFromIndex(copyTasks);
+                sendChangesToBackend(orderedTasks);
+
+                resolve(movedTask);
+                return orderedTasks;
+            });
+        });
+
+    };
+
+    const addTaskToColumn = (column: subscriptionBody, task: TaskType, newIndex: number) => {
+        column.setTasks(prevTasks => {
+
+            let copyTasks = [...prevTasks];
+            copyTasks.splice(newIndex, 0, task);
+            column.onTaskMoved(task);
+
+            let orderedTasks = updateOrderFromIndex(copyTasks);
+            sendChangesToBackend(orderedTasks);
+            return orderedTasks;
+        });
+    };
 
     const updateOrderFromIndex = (tasks: TaskType[]) => {
         return tasks.map((task, index) => {
             return { ...task, order: index };
         });
+    }
+
+    const sendChangesToBackend = async (tasksToSend: TaskType[]) => {
+        if (tasksToSend.length === 0) return;
+        try {
+            const promises = tasksToSend.map(task =>
+                API.update(task).catch(err => {
+                    console.error(`Error updating task ${task.id}:`, err);
+                }
+                ));
+            await Promise.all(promises);
+        } catch (err) {
+            throw err;
+        }
     }
 
     return { handleDragEnd, subscribeSetterFunction };
