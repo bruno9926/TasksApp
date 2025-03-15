@@ -59,4 +59,18 @@ export default class TaskAPIConnection implements TasksAPIInterface {
             throw error;
         }
     }
+
+    async delete(id: string): Promise<Task[]> {
+        try {
+            const res = await fetch(`${env.VITE_API_URL}/${id}`, {
+                method: "DELETE",
+                headers: {...this.defaultHeader}
+            });
+            if (!res.ok) throw new Error("Error deleting task");
+            return await res.json();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
 }

@@ -25,8 +25,17 @@ const useTaskManager = (
         }
     }
 
-    const deleteTask = (id: string) => () => {
+    const deleteTask = (id: string) => async () => {
+        const prevTasks = [...tasks];
         setTasks(tasks.filter(task => task.id !== id));
+
+        try {
+            const updatedTasks = await API.delete(id);
+            setTasks(updatedTasks);
+        } catch (err) {
+            console.error("Error deleting task:", err);
+            setTasks(prevTasks);
+        }
     }
 
     const updateTask = (id: string) => async (updatedTask: TaskType) => {
