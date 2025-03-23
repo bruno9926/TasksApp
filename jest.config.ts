@@ -8,8 +8,10 @@ const config: Config = {
         '^.+\\.tsx?$': 'ts-jest',
     },
     moduleNameMapper: {
-        '\\.(gif|ttf|eot|svg|png)$': '<rootDir>/src/tests/fileMock.ts',
-    }
+        '\\.(gif|ttf|eot|svg|png)$': '<rootDir>/src/tests/mocks/fileMock.js',
+        '\\.module\\.(css|less|scss)$': 'identity-obj-proxy'
+    },
+    extensionsToTreatAsEsm: ['.ts'],
 }
 
 export default config;
