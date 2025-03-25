@@ -46,7 +46,10 @@ const Task = ({ task, onToggle, onDelete, onUpdate }: TaskProps) => {
             />
             <div className={classes.taskFooter}>
                 <CheckboxInput />
-                <button className={classes.deleteButton} onClick={() => onDelete()}>
+                <button
+                    className={classes.deleteButton}
+                    onClick={() => onDelete()}
+                    aria-label="delete-button">
                     <FiTrash />
                 </button>
             </div>

@@ -16,5 +16,5 @@
     "jsx": "react-jsx",
     "types": ["@testing-library/jest-dom", "jest"],
   },
-  "include": ["src/tests/types"]
+  "include": ["src", "src/tests/types"]
 }
