@@ -14,7 +14,8 @@ const useTaskManager = (
             id: '', // id is assigned in the backend, we put an empty id to satisfy the type, fix this later
             title: "Sample Task",
             description: "What are you planning?",
-            completed: false
+            completed: false,
+            order: 0
         }
 
         try {
