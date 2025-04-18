@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type TaskType from '../types/Tasks';
+import type { CreateTaskType } from '../types/Tasks';
 import TasksAPIInterface from '../interfaces/TasksAPIInterface';
 
 
@@ -10,12 +11,10 @@ const useTaskManager = (
     const [tasks, setTasks] = useState<TaskType[]>([]);
 
     const addNewTask = async () => {
-        const sampleTask: TaskType = {
-            id: '', // id is assigned in the backend, we put an empty id to satisfy the type, fix this later
+        const sampleTask: CreateTaskType = {
             title: "Sample Task",
             description: "What are you planning?",
             completed: false,
-            order: 0
         }
 
         try {
